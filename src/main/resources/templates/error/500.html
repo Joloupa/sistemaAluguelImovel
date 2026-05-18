@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--
+  PRIMEHOUSE — error/500.html
+  Página de erro 500 Internal Server Error
+  Controller: return "error/500"  ou  "error/500 :: conteudo" (HTMX)
+-->
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Erro interno')}"></head>
+<body class="ph-layout">
+
+<div class="ph-sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="ph-wrapper">
+
+    <th:block th:replace="~{fragments/layout :: sidebar('inicio')}"/>
+
+    <main class="ph-main">
+
+        <th:block th:replace="~{fragments/layout :: topbar('Erro interno', null)}"/>
+
+        <div class="ph-content">
+
+            <div th:fragment="conteudo" class="ph-error-page">
+
+                <!-- Ícone de aviso -->
+                <div style="
+                    width:90px;height:90px;
+                    background:var(--ph-danger-light);
+                    border-radius:50%;
+                    display:flex;align-items:center;justify-content:center;
+                    margin:0 auto 1.5rem;
+                ">
+                    <svg viewBox="0 0 24 24" fill="currentColor"
+                         style="width:48px;height:48px;color:var(--ph-danger);">
+                        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                    </svg>
+                </div>
+
+                <div class="ph-error-page__code">500</div>
+
+                <h1 class="ph-error-page__title">Erro interno do servidor</h1>
+
+                <p class="ph-error-page__text">
+                    Ocorreu um erro inesperado no servidor. Nossa equipe foi notificada.
+                    Tente novamente em alguns instantes.
+                </p>
+
+                <div class="ph-flex-center ph-gap-3" style="flex-wrap:wrap;">
+                    <a th:href="@{/}" class="ph-btn ph-btn--primary ph-btn--lg">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        Ir para o Início
+                    </a>
+                    <button onclick="location.reload()" class="ph-btn ph-btn--outline ph-btn--lg">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                        Tentar novamente
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts-base}"/>
+
+</body>
+</html>

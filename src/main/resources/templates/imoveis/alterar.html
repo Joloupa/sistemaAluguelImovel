@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<!--
+  PRIMEHOUSE — imoveis/alterar.html
+  Formulário de alteração de imóvel — retornado como fragment para modal HTMX
+  Controller: return "imoveis/alterar :: formulario"
+-->
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- =====================================================================
+     FRAGMENT: formulario
+     Carregado via HTMX dentro do modal #modalAlterarConteudo
+     ===================================================================== -->
+<div th:fragment="formulario">
+
+    <!-- Cabeçalho do modal -->
+    <div class="ph-modal__header">
+        <div class="ph-modal__title">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.46a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            </svg>
+            Alterar Imóvel
+            <span th:if="${imovelDTOInput != null}"
+                  style="font-size:var(--ph-font-size-sm);font-weight:500;color:var(--ph-text-muted);"
+                  th:text="'#' + ${imovelDTOInput.codigo}"></span>
+        </div>
+        <button type="button" class="ph-modal__close" onclick="fecharModalAlterar()" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+    </div>
+
+    <!-- Alertas de erro globais -->
+    <div th:if="${#fields.hasGlobalErrors()}"
+         class="ph-alert ph-alert--danger"
+         style="margin:1rem 1.5rem 0;">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <div class="ph-alert__content">
+            <div class="ph-alert__title">Corrija os erros abaixo</div>
+            <ul style="margin:4px 0 0 1rem;font-size:var(--ph-font-size-xs);">
+                <li th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Corpo do modal com o formulário -->
+    <div class="ph-modal__body">
+
+        <form th:action="@{/imovel/alterar}"
+              th:object="${imovelDTOInput}"
+              method="post"
+              hx-post="/imovel/alterar"
+              hx-target="#modalAlterarConteudo"
+              hx-indicator="#loadingGlobal">
+
+            <!-- Campo oculto: código do imóvel -->
+            <input type="hidden" th:field="*{codigo}"/>
+
+            <!-- Seção: Classificação -->
+            <div class="ph-form-grid ph-form-grid--3" style="margin-bottom:1.25rem;">
+
+                <div class="ph-form-group">
+                    <label class="ph-form-label" for="tipoImovelAlt">
+                        Tipo <span class="required">*</span>
+                    </label>
+                    <select id="tipoImovelAlt"
+                            th:field="*{tipoImovel}"
+                            th:classappend="${#fields.hasErrors('tipoImovel')} ? 'is-invalid'"
+                            class="ph-form-control">
+                        <option value="">Selecione...</option>
+                        <option th:each="tipo : ${tipos}"
+                                th:value="${tipo.name()}"
+                                th:text="${tipo.descricao}">Tipo</option>
+                    </select>
+                    <div class="ph-form-error"
+                         th:if="${#fields.hasErrors('tipoImovel')}"
+                         th:errors="*{tipoImovel}"></div>
+                </div>
+
+                <div class="ph-form-group">
+                    <label class="ph-form-label" for="statusAlt">Status</label>
+                    <select id="statusAlt" th:field="*{status}" class="ph-form-control">
+                        <option value="DISPONIVEL">Disponível</option>
+                        <option value="ALUGADO">Alugado</option>
+                    </select>
+                </div>
+
+                <div class="ph-form-group">
+                    <label class="ph-form-label" for="valorAluguelAlt">
+                        Aluguel (R$) <span class="required">*</span>
+                    </label>
+                    <input type="number"
+                           id="valorAluguelAlt"
+                           th:field="*{valorAluguel}"
+                           th:classappend="${#fields.hasErrors('valorAluguel')} ? 'is-invalid'"
+                           class="ph-form-control"
+                           placeholder="Ex: 2500"
+                           min="0"/>
+                    <div class="ph-form-error"
+                         th:if="${#fields.hasErrors('valorAluguel')}"
+                         th:errors="*{valorAluguel}"></div>
+                </div>
+
+            </div>
+
+            <!-- Seção: Localização -->
+            <div class="ph-form-grid ph-form-grid--3" style="margin-bottom:1.25rem;">
+
+                <div class="ph-form-group">
+                    <label class="ph-form-label" for="bairroAlt">
+                        Bairro <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           id="bairroAlt"
+                           th:field="*{bairro}"
+                           th:classappend="${#fields.hasErrors('bairro')} ? 'is-invalid'"
+                           class="ph-form-control"
+                           placeholder="Ex: Centro"/>
+                    <div class="ph-form-error"
+                         th:if="${#fields.hasErrors('bairro')}"
+                         th:errors="*{bairro}"></div>
+                </div>
+
+                <div class="ph-form-group">
+                    <label class="ph-form-label" for="cidadeAlt">
+                        Cidade <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           id="cidadeAlt"
+                           th:field="*{cidade}"
+                           th:classappend="${#fields.hasErrors('cidade')} ? 'is-invalid'"
+                           class="ph-form-control"
+                           placeholder="Ex: São Paulo"/>
+                    <div class="ph-form-error"
+                         th:if="${#fields.hasErrors('cidade')}"
+                         th:errors="*{cidade}"></div>
+                </div>
+
+                <div class="ph-form-group">
+                    <label class="ph-form-label" for="estadoAlt">
+                        UF <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           id="estadoAlt"
+                           th:field="*{estado}"
+                           th:classappend="${#fields.hasErrors('estado')} ? 'is-invalid'"
+                           class="ph-form-control"
+                           placeholder="SP"
+                           maxlength="2"
+                           style="text-transform:uppercase;"/>
+                    <div class="ph-form-error"
+                         th:if="${#fields.hasErrors('estado')}"
+                         th:errors="*{estado}"></div>
+                </div>
+
+            </div>
+
+            <!-- Seção: Proprietário e Descrição -->
+            <div class="ph-form-grid ph-form-grid--2">
+
+                <div class="ph-form-group">
+                    <label class="ph-form-label" for="proprietarioAlt">
+                        Proprietário <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           id="proprietarioAlt"
+                           th:field="*{proprietario}"
+                           th:classappend="${#fields.hasErrors('proprietario')} ? 'is-invalid'"
+                           class="ph-form-control"
+                           placeholder="Nome completo"/>
+                    <div class="ph-form-error"
+                         th:if="${#fields.hasErrors('proprietario')}"
+                         th:errors="*{proprietario}"></div>
+                </div>
+
+                <div class="ph-form-group">
+                    <label class="ph-form-label" for="descricaoAlt">
+                        Descrição <span class="required">*</span>
+                    </label>
+                    <textarea id="descricaoAlt"
+                              th:field="*{descricao}"
+                              th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'"
+                              class="ph-form-control"
+                              rows="3"
+                              maxlength="255"
+                              placeholder="Características do imóvel..."></textarea>
+                    <div class="ph-form-error"
+                         th:if="${#fields.hasErrors('descricao')}"
+                         th:errors="*{descricao}"></div>
+                </div>
+
+            </div>
+
+            <!-- Rodapé do modal: ações -->
+            <div class="ph-modal__footer" style="margin:-1.5rem -1.5rem -1.5rem;border-radius:0 0 var(--ph-radius-lg) var(--ph-radius-lg);">
+                <button type="button" class="ph-btn ph-btn--outline" onclick="fecharModalAlterar()">
+                    Cancelar
+                </button>
+                <button type="submit" class="ph-btn ph-btn--primary">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+                    Salvar Alterações
+                </button>
+            </div>
+
+        </form>
+
+    </div><!-- /ph-modal__body -->
+
+</div><!-- /th:fragment="formulario" -->
+
+</body>
+</html>

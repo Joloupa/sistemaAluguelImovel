@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!--
+  PRIMEHOUSE — mensagem.html
+  Página de mensagem genérica
+  Controller: return "mensagem :: texto"
+-->
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mensagem')}"></head>
+<body class="ph-layout">
+
+<div class="ph-sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="ph-wrapper">
+
+    <th:block th:replace="~{fragments/layout :: sidebar('inicio')}"/>
+
+    <main class="ph-main">
+
+        <th:block th:replace="~{fragments/layout :: topbar('Mensagem', null)}"/>
+
+        <div class="ph-content">
+
+            <!-- FRAGMENT: texto -->
+            <div th:fragment="texto" class="ph-flex-center" style="min-height:60vh;">
+                <div class="ph-card" style="max-width:520px;width:100%;text-align:center;">
+
+                    <div class="ph-card__body" style="padding:3rem 2rem;">
+
+                        <!-- Ícone de informação -->
+                        <div style="
+                            width:70px;height:70px;
+                            background:var(--ph-info-light);
+                            border-radius:50%;
+                            display:flex;align-items:center;justify-content:center;
+                            margin:0 auto 1.5rem;
+                        ">
+                            <svg viewBox="0 0 24 24" fill="currentColor"
+                                 style="width:36px;height:36px;color:var(--ph-info);">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                            </svg>
+                        </div>
+
+                        <h2 style="font-size:var(--ph-font-size-xl);font-weight:700;color:var(--ph-text);margin-bottom:.75rem;">
+                            Informação
+                        </h2>
+
+                        <p style="color:var(--ph-text-muted);font-size:var(--ph-font-size-base);margin-bottom:2rem;"
+                           th:text="${mensagem}">
+                            Operação realizada com sucesso.
+                        </p>
+
+                        <div class="ph-flex-center ph-gap-3" style="flex-wrap:wrap;">
+                            <a th:href="@{/}" class="ph-btn ph-btn--primary">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                                Ir para o Início
+                            </a>
+                            <button onclick="history.back()" class="ph-btn ph-btn--outline">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                                Voltar
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- /FRAGMENT: texto -->
+
+        </div>
+    </main>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts-base}"/>
+
+</body>
+</html>

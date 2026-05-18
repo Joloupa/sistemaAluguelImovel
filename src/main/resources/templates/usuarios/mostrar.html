@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<!--
+  PRIMEHOUSE — usuarios/mostrar.html
+  Fragment "tabela" — resultado da pesquisa de locatários
+  Retornado via HTMX para #tabelaUsuarios em pesquisar.html
+-->
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- =====================================================================
+     FRAGMENT: tabela
+     Controller: return "usuarios/mostrar :: tabela"
+     ===================================================================== -->
+<div th:fragment="tabela">
+
+    <div class="ph-card">
+
+        <div class="ph-card__header">
+            <div>
+                <div class="ph-card__title">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                    </svg>
+                    Locatários encontrados
+                </div>
+                <div class="ph-card__subtitle"
+                     th:text="${pagina.totalElements} + ' registro(s) encontrado(s)'">
+                    0 registros encontrados
+                </div>
+            </div>
+            <a th:href="@{/usuario/cadastrar}" class="ph-btn ph-btn--primary ph-btn--sm">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                Novo
+            </a>
+        </div>
+
+        <!-- ── Estado vazio ── -->
+        <div th:if="${pagina.totalElements == 0}" class="ph-empty">
+            <svg class="ph-empty__icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+            <div class="ph-empty__title">Nenhum locatário encontrado</div>
+            <p class="ph-empty__text">Ajuste os filtros ou cadastre um novo locatário.</p>
+            <a th:href="@{/usuario/cadastrar}" class="ph-btn ph-btn--primary" style="margin-top:1rem;">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                Cadastrar Locatário
+            </a>
+        </div>
+
+        <!-- ── Tabela ── -->
+        <div class="ph-table-wrapper" th:if="${pagina.totalElements > 0}">
+            <table class="ph-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>E-mail</th>
+                        <th>Telefone</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="usuario : ${pagina.content}">
+
+                        <td>
+                            <span style="font-weight:700;color:var(--ph-primary);"
+                                  th:text="${usuario.codigo}">1</span>
+                        </td>
+
+                        <td>
+                            <!-- Avatar inicial + nome -->
+                            <div class="ph-flex ph-gap-3" style="align-items:center;">
+                                <div style="
+                                    width:34px;height:34px;border-radius:50%;
+                                    background:linear-gradient(135deg,var(--ph-primary) 0%,#7c3aed 100%);
+                                    display:flex;align-items:center;justify-content:center;
+                                    font-weight:700;font-size:0.85rem;color:#fff;flex-shrink:0;">
+                                    <span th:text="${#strings.substring(usuario.nome,0,1).toUpperCase()}">A</span>
+                                </div>
+                                <span style="font-weight:500;" th:text="${usuario.nome}">Nome</span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span style="font-family:var(--ph-font-mono);font-size:var(--ph-font-size-sm);"
+                                  th:text="${usuario.cpf}">000.000.000-00</span>
+                        </td>
+
+                        <td th:text="${usuario.email}">email@exemplo.com</td>
+
+                        <td th:text="${usuario.telefone}">—</td>
+
+                        <td>
+                            <span th:if="${usuario.status.name() == 'ATIVO'}"  class="ph-badge ph-badge--green">Ativo</span>
+                            <span th:if="${usuario.status.name() == 'INATIVO'}" class="ph-badge ph-badge--red">Inativo</span>
+                            <span th:if="${usuario.status.name() != 'ATIVO' and usuario.status.name() != 'INATIVO'}"
+                                  class="ph-badge ph-badge--gray" th:text="${usuario.status.descricao}">—</span>
+                        </td>
+
+                        <td>
+                            <div class="ph-table__actions">
+
+                                <!-- Editar via modal HTMX -->
+                                <a class="ph-btn ph-btn--outline ph-btn--sm ph-btn--icon"
+                                   th:attr="hx-get=@{/usuario/alterar/{c}(c=${usuario.codigo})}"
+                                   hx-target="#modalAlterarUsuarioConteudo"
+                                   hx-indicator="#loadingGlobal"
+                                   onclick="document.getElementById('modalAlterarUsuario').style.display='flex'"
+                                   title="Editar locatário">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.46a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                    </svg>
+                                </a>
+
+                                <!-- Remover com confirmação -->
+                                <button type="button"
+                                        class="ph-btn ph-btn--danger ph-btn--sm ph-btn--icon"
+                                        th:attr="data-codigo=${usuario.codigo}, data-nome=${usuario.nome}"
+                                        onclick="confirmarRemocaoUsuario(this)"
+                                        title="Desativar locatário">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12 1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/>
+                                    </svg>
+                                </button>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ── Paginação ── -->
+        <div class="ph-card__footer" th:if="${pagina.totalPages > 1}">
+            <div class="ph-pagination">
+
+                <a th:if="${pagina.hasPreviousPage}"
+                   th:attr="hx-get=${pagina.getPaginaUrl(pagina.number - 1)}"
+                   hx-target="#tabelaUsuarios"
+                   hx-indicator="#loadingGlobal"
+                   class="ph-page-btn" aria-label="Anterior">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                </a>
+                <span th:unless="${pagina.hasPreviousPage}" class="ph-page-btn disabled">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                </span>
+
+                <th:block th:each="pagNum : ${pagina.paginasVisiveis}">
+                    <a th:if="${pagNum != pagina.number}"
+                       th:attr="hx-get=${pagina.getPaginaUrl(pagNum)}"
+                       hx-target="#tabelaUsuarios"
+                       hx-indicator="#loadingGlobal"
+                       class="ph-page-btn"
+                       th:text="${pagNum + 1}">1</a>
+                    <span th:if="${pagNum == pagina.number}"
+                          class="ph-page-btn active"
+                          th:text="${pagNum + 1}"
+                          aria-current="page">1</span>
+                </th:block>
+
+                <a th:if="${pagina.hasNextPage}"
+                   th:attr="hx-get=${pagina.getPaginaUrl(pagina.number + 1)}"
+                   hx-target="#tabelaUsuarios"
+                   hx-indicator="#loadingGlobal"
+                   class="ph-page-btn" aria-label="Próxima">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                </a>
+                <span th:unless="${pagina.hasNextPage}" class="ph-page-btn disabled">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                </span>
+
+            </div>
+        </div>
+
+    </div><!-- /ph-card -->
+
+    <!-- ── Modal de alteração ── -->
+    <div id="modalAlterarUsuario"
+         class="ph-modal-backdrop"
+         onclick="if(event.target===this)fecharModalUsuario()"
+         style="display:none;">
+        <div class="ph-modal ph-modal--lg" onclick="event.stopPropagation()">
+            <div id="modalAlterarUsuarioConteudo">
+                <div class="ph-flex-center" style="padding:3rem;">
+                    <span class="ph-spinner ph-spinner--lg" style="color:var(--ph-primary);"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.detail.target && evt.detail.target.id === 'modalAlterarUsuarioConteudo') {
+                document.getElementById('modalAlterarUsuario').style.display = 'flex';
+            }
+        });
+
+        function fecharModalUsuario() {
+            document.getElementById('modalAlterarUsuario').style.display = 'none';
+        }
+
+        function confirmarRemocaoUsuario(btn) {
+            const codigo = btn.getAttribute('data-codigo');
+            const nome   = btn.getAttribute('data-nome');
+            Swal.fire({
+                title: 'Desativar locatário?',
+                html: `O locatário <strong>${nome}</strong> será marcado como <em>Inativo</em>.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sim, desativar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#e02424',
+                cancelButtonColor: '#6b7280',
+                focusCancel: true
+            }).then(result => {
+                if (result.isConfirmed) {
+                    window.location.href = `/usuario/remover/${codigo}`;
+                }
+            });
+        }
+    </script>
+
+</div><!-- /th:fragment="tabela" -->
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!--
+  PRIMEHOUSE — error/404.html
+  Página de erro 404 Not Found
+  Controller: return "error/404"  ou  "error/404 :: conteudo" (HTMX)
+-->
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Página não encontrada')}"></head>
+<body class="ph-layout">
+
+<div class="ph-sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="ph-wrapper">
+
+    <th:block th:replace="~{fragments/layout :: sidebar('inicio')}"/>
+
+    <main class="ph-main">
+
+        <th:block th:replace="~{fragments/layout :: topbar('Página não encontrada', null)}"/>
+
+        <div class="ph-content">
+
+            <!-- FRAGMENT: conteudo — retornado em requisições HTMX -->
+            <div th:fragment="conteudo" class="ph-error-page">
+
+                <div class="ph-error-page__code">404</div>
+
+                <h1 class="ph-error-page__title">Página não encontrada</h1>
+
+                <p class="ph-error-page__text">
+                    A página que você está tentando acessar não existe ou foi movida.
+                    Verifique o endereço ou retorne ao início.
+                </p>
+
+                <div class="ph-flex-center ph-gap-3" style="flex-wrap:wrap;">
+                    <a th:href="@{/}" class="ph-btn ph-btn--primary ph-btn--lg">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        Ir para o Início
+                    </a>
+                    <button onclick="history.back()" class="ph-btn ph-btn--outline ph-btn--lg">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                        Voltar
+                    </button>
+                </div>
+
+            </div>
+            <!-- /FRAGMENT: conteudo -->
+
+        </div>
+    </main>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts-base}"/>
+
+</body>
+</html>

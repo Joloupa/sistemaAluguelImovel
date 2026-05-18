@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<!--
+  PRIMEHOUSE — imoveis/mostrar.html
+  Fragment "tabela" — resultado da pesquisa de imóveis
+  Retornado via HTMX para #tabelaImoveis em pesquisar.html
+-->
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- =====================================================================
+     FRAGMENT: tabela
+     Retornado pelo controller:  return "imoveis/mostrar :: tabela"
+     ===================================================================== -->
+<div th:fragment="tabela">
+
+    <!-- ── Card da tabela ── -->
+    <div class="ph-card">
+
+        <div class="ph-card__header">
+            <div>
+                <div class="ph-card__title">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    Imóveis encontrados
+                </div>
+                <div class="ph-card__subtitle"
+                     th:text="${pagina.totalElements} + ' registro(s) encontrado(s)'">
+                    0 registros encontrados
+                </div>
+            </div>
+            <div class="ph-flex ph-gap-3">
+                <a th:href="@{/imovel/cadastrar}" class="ph-btn ph-btn--primary ph-btn--sm">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    Novo
+                </a>
+            </div>
+        </div><!-- /card-header -->
+
+        <!-- ── Estado vazio ── -->
+        <div th:if="${pagina.vazia}" class="ph-empty"> <!--antes era: th:if="${pagina.totalElements == 0}" || Agora está assim: th:if="${pagina.vazia}" -->
+            <svg class="ph-empty__icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            <div class="ph-empty__title">Nenhum imóvel encontrado</div>
+            <p class="ph-empty__text">Tente ajustar os filtros de pesquisa ou cadastre um novo imóvel.</p>
+            <a th:href="@{/imovel/cadastrar}" class="ph-btn ph-btn--primary" style="margin-top:1rem;">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                Cadastrar Imóvel
+            </a>
+        </div>
+
+        <!-- ── Tabela ── -->
+        <div class="ph-table-wrapper" th:if="${!pagina.vazia}"> <!--antes era: th:if="${pagina.totalElements > 0}" || Agora está assim: th:if="${!pagina.vazia}" -->
+            <table class="ph-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tipo</th>
+                        <th>Localização</th>
+                        <th>Proprietário</th>
+                        <th>Aluguel</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="imovel : ${pagina.conteudo}">  <!--antes era: th:each="imovel : ${pagina.content}" || Agora está assim: th:each="imovel : ${pagina.conteudo}" -->
+
+                        <!-- Código -->
+                        <td>
+                            <span style="font-weight:700;color:var(--ph-primary);"
+                                  th:text="${imovel.codigo}">1</span>
+                        </td>
+
+                        <!-- Tipo -->
+                        <td>
+                            <span class="ph-badge ph-badge--blue" th:text="${imovel.tipoImovel}">Casa</span>
+                        </td>
+
+                        <!-- Localização -->
+                        <td>
+                            <div style="font-weight:500;" th:text="${imovel.cidade + ' — ' + imovel.estado}">
+                                Cidade — UF
+                            </div> <!-- Removido: th:text="${imovel.cidade} + ' — ' + ${imovel.estado}" || SubistituidoPor: th:text="${imovel.cidade + ' — ' + imovel.estado}" -->
+                            <div style="font-size:var(--ph-font-size-xs);color:var(--ph-text-muted);"
+                                 th:text="${imovel.bairro}">Bairro</div>
+                        </td>
+
+                        <!-- Proprietário -->
+                        <td th:text="${imovel.proprietario}">—</td>
+
+                        <!-- Valor aluguel -->
+                        <td>
+                            <span style="font-weight:600;color:var(--ph-secondary);">
+                                R$ <span th:text="${imovel.valorAluguel}">0</span>
+                            </span>
+                        </td>
+
+                        <!-- Status badge -->
+                        <td>
+                            <span th:if="${imovel.status.name() == 'DISPONIVEL'}"
+                                  class="ph-badge ph-badge--green">Disponível</span>
+                            <span th:if="${imovel.status.name() == 'ALUGADO'}"
+                                  class="ph-badge ph-badge--red">Alugado</span>
+                            <span th:if="${imovel.status.name() != 'DISPONIVEL' and imovel.status.name() != 'ALUGADO'}"
+                                  class="ph-badge ph-badge--gray" th:text="${imovel.status}">—</span> <!-- Removido: th:text="${imovel.status.descricao}" || SubistituidoPor: th:text="${imovel.status}" -->
+                        </td>
+
+                        <!-- Ações -->
+                        <td>
+                            <div class="ph-table__actions">
+
+                                <!-- Editar -->
+                                <a th:href="@{/imovel/alterar/{c}(c=${imovel.codigo})}"
+                                   class="ph-btn ph-btn--outline ph-btn--sm ph-btn--icon"
+                                   hx-get="/imovel/alterar/{c}"
+                                   hx-get-param="c"
+                                   th:attr="hx-get=@{/imovel/alterar/{c}(c=${imovel.codigo})}"
+                                   hx-target="#modalAlterarConteudo"
+                                   hx-indicator="#loadingGlobal"
+                                   onclick="document.getElementById('modalAlterar').classList.remove('ph-modal-hidden')"
+                                   title="Editar imóvel">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.46a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                    </svg>
+                                </a>
+
+                                <!-- Remover (confirma antes) -->
+                                <button type="button"
+                                        class="ph-btn ph-btn--danger ph-btn--sm ph-btn--icon"
+                                        th:attr="data-codigo=${imovel.codigo}, data-tipo=${imovel.tipoImovel}"
+                                        onclick="confirmarRemocaoImovel(this)"
+                                        title="Remover imóvel">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12 1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/>
+                                    </svg>
+                                </button>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div><!-- /table-wrapper -->
+
+        <!-- ── Paginação ── -->
+        <div class="ph-card__footer" th:if="${pagina.numeroPaginas > 1}"> <!--antes era: th:if="${pagina.totalPages > 1}" || Agora está assim: th:if="${pagina.numeroPaginas > 1}" -->
+            <div class="ph-pagination">
+
+                <!-- Anterior -->
+                <a th:if="${!pagina.primeira}"
+                   th:href="${pagina.urlParaPagina(pagina.atual - 1)}"
+                   hx-get="${pagina.urlParaPagina(pagina.atual - 1)}"
+                   hx-target="#tabelaImoveis"
+                   hx-indicator="#loadingGlobal"
+                   class="ph-page-btn"
+                   aria-label="Página anterior">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                </a> <!--antes era: th:href="${pagina.getPaginaUrl(pagina.number - 1)}" || Agora está assim: th:href="${pagina.urlParaPagina(pagina.atual - 1)}" -->
+                     <!--antes era: hx-get="${pagina.getPaginaUrl(pagina.number - 1)}" || Agora está assim: hx-get="${pagina.urlParaPagina(pagina.atual - 1)}" -->
+                <span th:unless="${pagina.hasPreviousPage}" class="ph-page-btn disabled" aria-disabled="true">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                </span>
+
+                <!-- Páginas numeradas -->
+                <th:block  th:each="pagNum : ${#numbers.sequence(pagina.inicio,pagina.fim)}"> <!-- Removido: th:each="pagNum : ${pagina.paginasVisiveis}" || SubistituidoPor: ${#numbers.sequence(pagina.inicio,pagina.fim)}" -->
+                    <a th:if="${pagNum != pagina.number}"
+                       th:href="${pagina.getPaginaUrl(pagNum)}"
+                       hx-get="${pagina.getPaginaUrl(pagNum)}"
+                       hx-target="#tabelaImoveis"
+                       hx-indicator="#loadingGlobal"
+                       class="ph-page-btn"
+                       th:text="${pagNum + 1}">1</a>
+                    <span th:if="${pagNum == pagina.atual + 1}" 
+                          class="ph-page-btn active"
+                          th:text="${pagNum + 1}"
+                          aria-current="page">1</span> <!-- Removido: th:if="${pagNum == pagina.number}" || SubstituidoPor: th:if="${pagNum == pagina.atual + 1}" -->
+                </th:block>
+
+                <!-- Próxima -->
+                <a th:if="${!pagina.ultima}"
+                   th:href="${pagina.getPaginaUrl(pagina.number + 1)}"
+                   hx-get="${pagina.getPaginaUrl(pagina.number + 1)}"
+                   hx-target="#tabelaImoveis"
+                   hx-indicator="#loadingGlobal"
+                   class="ph-page-btn"
+                   aria-label="Próxima página">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                </a> <!-- Removido: th:if="${pagina.hasNextPage}" || SubstituidoPor: th:if="${!pagina.ultima}" -->
+                <span th:unless="${pagina.hasNextPage}" class="ph-page-btn disabled" aria-disabled="true">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                </span>
+
+            </div><!-- /pagination -->
+        </div><!-- /card-footer -->
+
+    </div><!-- /ph-card -->
+
+    <!-- ── Modal de alteração (carregado via HTMX) ── -->
+    <div id="modalAlterar"
+         class="ph-modal-backdrop ph-modal-hidden"
+         onclick="if(event.target===this)fecharModalAlterar()"
+         style="display:none;">
+        <div class="ph-modal ph-modal--lg" onclick="event.stopPropagation()">
+            <div id="modalAlterarConteudo">
+                <!-- preenchido via HTMX -->
+                <div class="ph-flex-center" style="padding:3rem;">
+                    <span class="ph-spinner ph-spinner--lg" style="color:var(--ph-primary);"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estilos de visibilidade do modal (apenas para o fragment) -->
+    <style>
+        .ph-modal-hidden { display: none !important; }
+        .ph-modal-visible { display: flex !important; }
+    </style>
+
+    <!-- Script de confirmação de remoção e controle do modal -->
+    <script>
+        // Abre o modal de alteração via HTMX
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.detail.target && evt.detail.target.id === 'modalAlterarConteudo') {
+                const modal = document.getElementById('modalAlterar');
+                if (modal) {
+                    modal.style.display = 'flex';
+                    modal.classList.remove('ph-modal-hidden');
+                    modal.classList.add('ph-modal-visible');
+                }
+            }
+        });
+
+        function fecharModalAlterar() {
+            const modal = document.getElementById('modalAlterar');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.add('ph-modal-hidden');
+                modal.classList.remove('ph-modal-visible');
+            }
+        }
+
+        // Confirma remoção com SweetAlert2
+        function confirmarRemocaoImovel(btn) {
+            const codigo = btn.getAttribute('data-codigo');
+            const tipo   = btn.getAttribute('data-tipo');
+            Swal.fire({
+                title: 'Remover imóvel?',
+                html: `O imóvel <strong>#${codigo} — ${tipo}</strong> será marcado como <em>Alugado/Removido</em>. Esta ação não pode ser desfeita.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sim, remover',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#e02424',
+                cancelButtonColor: '#6b7280',
+                focusCancel: true
+            }).then(result => {
+                if (result.isConfirmed) {
+                    window.location.href = `/imovel/remover/${codigo}`;
+                }
+            });
+        }
+    </script>
+
+</div><!-- /th:fragment="tabela" -->
+
+</body>
+</html>

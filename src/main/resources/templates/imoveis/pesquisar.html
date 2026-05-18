@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<!--
+  PRIMEHOUSE — imoveis/pesquisar.html
+  Página de pesquisa/listagem de imóveis
+  Spring MVC + Thymeleaf + HTMX
+-->
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Pesquisar Imóveis')}"></head>
+<body class="ph-layout">
+
+<!-- Overlay mobile -->
+<div class="ph-sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="ph-wrapper">
+
+    <!-- ── Sidebar ── -->
+    <th:block th:replace="~{fragments/layout :: sidebar('imoveis-pesquisar')}"/>
+
+    <!-- ── Área principal ── -->
+    <main class="ph-main">
+
+        <!-- Topbar -->
+        <th:block th:replace="~{fragments/layout :: topbar('Imóveis', 'Pesquisar')}"/>
+
+        <!-- Notificações flash -->
+        <th:block th:replace="~{fragments/layout :: notificacoes}"/>
+
+        <!-- Conteúdo -->
+        <div class="ph-content">
+
+            <!-- Header da página -->
+            <div class="ph-page-header ph-flex-between" style="flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h1 class="ph-page-header__title">Pesquisar Imóveis</h1>
+                    <p class="ph-page-header__subtitle">Consulte e gerencie o portfólio de imóveis</p>
+                </div>
+                <div class="ph-page-header__actions">
+                    <a th:href="@{/imovel/cadastrar}" class="ph-btn ph-btn--primary">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        Novo Imóvel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Formulário de filtro (HTMX — renderizado via :: formulario) -->
+            <div id="formularioPesquisa"
+                 hx-get="/imovel/abrirpesquisar"
+                 hx-trigger="load"
+                 hx-target="#formularioPesquisa"
+                 hx-indicator="#loadingGlobal">
+
+                <!-- Fragment: formulario -->
+                <div th:fragment="formulario">
+                    <div class="ph-filter ph-mb-6">
+                        <div class="ph-filter__header">
+                            <div class="ph-filter__title">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zm-7-9v2h18V9H3zm3-4v2h12V5H6z"/></svg>
+                                Filtros de Pesquisa
+                            </div>
+                            <button type="button"
+                                    onclick="document.getElementById('filtrosBody').classList.toggle('ph-filter-hidden')"
+                                    class="ph-btn ph-btn--ghost ph-btn--sm"
+                                    aria-label="Recolher filtros">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                            </button>
+                        </div>
+
+                        <div id="filtrosBody" class="ph-filter__body">
+                            <form id="formFiltro"
+                                  hx-get="/imovel/pesquisar"
+                                  hx-target="#tabelaImoveis"
+                                  hx-trigger="submit"
+                                  hx-indicator="#loadingGlobal"
+                                  hx-push-url="false">
+
+                                <div class="ph-form-grid ph-form-grid--4" style="margin-bottom:1.25rem;">
+
+                                    <div class="ph-form-group" style="margin-bottom:0;">
+                                        <label class="ph-form-label" for="codigo">Código</label>
+                                        <input type="number"
+                                               id="codigo"
+                                               name="codigo"
+                                               class="ph-form-control"
+                                               placeholder="Ex: 1"/>
+                                    </div>
+
+                                    <div class="ph-form-group" style="margin-bottom:0;">
+                                        <label class="ph-form-label" for="tipoImovel">Tipo</label>
+                                        <select id="tipoImovel" name="tipoImovel" class="ph-form-control">
+                                            <option value="">Todos</option>
+                                            <option value="APARTAMENTO">Apartamento</option>
+                                            <option value="CASA">Casa</option>
+                                            <option value="TERRENO">Terreno</option>
+                                            <option value="COMERCIAL">Comercial</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="ph-form-group" style="margin-bottom:0;">
+                                        <label class="ph-form-label" for="cidade">Cidade</label>
+                                        <input type="text"
+                                               id="cidade"
+                                               name="cidade"
+                                               class="ph-form-control"
+                                               placeholder="Ex: São Paulo"/>
+                                    </div>
+
+                                    <div class="ph-form-group" style="margin-bottom:0;">
+                                        <label class="ph-form-label" for="estado">Estado</label>
+                                        <input type="text"
+                                               id="estado"
+                                               name="estado"
+                                               class="ph-form-control"
+                                               maxlength="2"
+                                               placeholder="Ex: SP"/>
+                                    </div>
+
+                                    <div class="ph-form-group" style="margin-bottom:0;">
+                                        <label class="ph-form-label" for="bairro">Bairro</label>
+                                        <input type="text"
+                                               id="bairro"
+                                               name="bairro"
+                                               class="ph-form-control"
+                                               placeholder="Ex: Centro"/>
+                                    </div>
+
+                                    <div class="ph-form-group" style="margin-bottom:0;">
+                                        <label class="ph-form-label" for="proprietario">Proprietário</label>
+                                        <input type="text"
+                                               id="proprietario"
+                                               name="proprietario"
+                                               class="ph-form-control"
+                                               placeholder="Nome do proprietário"/>
+                                    </div>
+
+                                    <div class="ph-form-group" style="margin-bottom:0;">
+                                        <label class="ph-form-label" for="Status">Status</label>
+                                        <select id="Status" name="Status" class="ph-form-control">
+                                            <option value="">Todos</option>
+                                            <option value="DISPONIVEL">Disponível</option>
+                                            <option value="ALUGADO">Alugado</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="ph-form-group" style="margin-bottom:0;">
+                                        <label class="ph-form-label" for="valorAluguel">Valor Máx. (R$)</label>
+                                        <input type="number"
+                                               id="valorAluguel"
+                                               name="valorAluguel"
+                                               class="ph-form-control"
+                                               placeholder="Ex: 5000"/>
+                                    </div>
+
+                                </div><!-- /form-grid -->
+
+                                <div class="ph-filter__actions">
+                                    <button type="submit" class="ph-btn ph-btn--primary">
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                                        Pesquisar
+                                    </button>
+                                    <button type="reset"
+                                            class="ph-btn ph-btn--outline"
+                                            onclick="setTimeout(()=>document.getElementById('formFiltro').dispatchEvent(new Event('submit')),50)">
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                                        Limpar
+                                    </button>
+                                </div>
+                            </form>
+                        </div><!-- /filter-body -->
+                    </div><!-- /ph-filter -->
+
+                    <!-- Dispara a pesquisa automática ao abrir -->
+                    <div hx-get="/imovel/pesquisar"
+                         hx-trigger="load"
+                         hx-target="#tabelaImoveis"
+                         hx-indicator="#loadingGlobal">
+                    </div>
+
+                </div><!-- /th:fragment="formulario" -->
+            </div><!-- /formularioPesquisa -->
+
+            <!-- Área da tabela — alvo do HTMX -->
+            <div id="tabelaImoveis">
+                <!-- Preenchido via HTMX pelo fragment "tabela" de mostrar.html -->
+                <div class="ph-flex-center" style="padding:3rem;color:var(--ph-text-muted);">
+                    <span class="ph-spinner ph-spinner--lg" style="color:var(--ph-primary);"></span>
+                </div>
+            </div>
+
+        </div><!-- /ph-content -->
+    </main>
+</div><!-- /ph-wrapper -->
+
+<th:block th:replace="~{fragments/layout :: scripts-base}"/>
+
+</body>
+</html>

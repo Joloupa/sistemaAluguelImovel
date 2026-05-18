@@ -1,0 +1,17 @@
+/* ==========================================================================
+   Tailwind CSS v4 — arquivo de entrada (gerado via CLI)
+   NÃO edite manualmente as utilidades geradas em style.css
+
+   O design principal do PRIMEHOUSE está em:
+     /static/CSS/primehouse.css
+
+   Ordem de carregamento nos templates (fragments/layout.html):
+     1. /css/style.css    → Tailwind compilado (reset + utilities)
+     2. /CSS/primehouse.css → Design system PRIMEHOUSE (variáveis + componentes)
+
+   Estratégia de coexistência:
+     - Tailwind fornece o reset base e utilitários pontuais (hidden, flex, gap-x-2, etc.)
+     - PRIMEHOUSE usa prefixo "ph-" em todas as classes para evitar colisões
+     - Variáveis CSS do PRIMEHOUSE usam prefixo "--ph-" para não conflitar com "--tw-"
+   ========================================================================== */
+@import "tailwindcss";

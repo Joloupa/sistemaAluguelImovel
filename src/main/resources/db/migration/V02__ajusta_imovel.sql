@@ -1,0 +1,19 @@
+ALTER TABLE imovel
+ADD COLUMN cidade TEXT;
+
+ALTER TABLE imovel
+ADD COLUMN estado TEXT;
+
+ALTER TABLE imovel
+ADD COLUMN data_cadastro TIMESTAMP;
+
+ALTER TABLE imovel
+ALTER COLUMN numero TYPE TEXT;
+
+ALTER TABLE imovel
+ALTER COLUMN statusimovel
+SET DEFAULT 'DISPONIVEL';
+
+UPDATE imovel
+SET statusimovel='DISPONIVEL'
+WHERE statusimovel IS NULL;
